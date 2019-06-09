@@ -63,7 +63,7 @@
             this.MinimizeBox = false;
             this.Name = "Form1";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
-            this.Text = "Form1";
+            this.Text = "WindowsAutoPrintPdf";
             this.ResumeLayout(false);
 
         }
