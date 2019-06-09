@@ -10,6 +10,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using IniParser;
+using IniParser.Model;
 
 namespace WindowsFormsApp1
 {
@@ -39,6 +41,13 @@ namespace WindowsFormsApp1
                 Global.Selectedprinter = printer;
 
             }
+            //récupérer la valeur dans le ini de config.ini
+            if (File.Exists("Configuration.ini")){
+                var parser = new FileIniDataParser();
+                IniData data = parser.ReadFile("Configuration.ini");
+                comboBox1.SelectedIndex = comboBox1.FindStringExact(data["AutoPrintPdf"]["Default Print"]);
+            }
+
         }
         private void Timer1_Tick(object sender, EventArgs e)
         {
@@ -99,7 +108,21 @@ namespace WindowsFormsApp1
             //on cache les boutons
             comboBox1.Enabled = false;
             comboBox1.Enabled = false;
-
+            //on sauvegarde l'imprimante en cours dans le ini
+            if (File.Exists("Configuration.ini"))
+            {
+                var parser = new FileIniDataParser();
+                IniData data = parser.ReadFile("Configuration.ini");
+                data["AutoPrintPdf"]["Default Print"] = comboBox1.SelectedItem.ToString();
+                parser.WriteFile("Configuration.ini", data);
+            }
+            else
+            {
+                IniData data = new IniData();
+                var parser = new FileIniDataParser();
+                data["AutoPrintPdf"]["Default Print"] = comboBox1.SelectedItem.ToString();
+                parser.WriteFile("Configuration.ini", data);
+            }
         }
 
         private void ComboBox1_SelectedIndexChanged(object sender, EventArgs e)
