@@ -40,15 +40,6 @@ namespace WindowsFormsApp1
 
             }
         }
-        private Timer timer1;
-        public void InitTimer()
-        {
-            timer1 = new Timer();
-            timer1.Tick += new EventHandler(Timer1_Tick);
-            timer1.Interval = 5000; // in miliseconds
-            timer1.Start();
-        }
-
         private void Timer1_Tick(object sender, EventArgs e)
         {
             button1.Text = "Impression...";
@@ -57,20 +48,13 @@ namespace WindowsFormsApp1
             //imprimer les fichiers
             foreach (var item in filePaths)
             {
-  
-                printMyPdf(item, Path.GetFileName(item));
+                PrintMyPdf(item, Path.GetFileName(item));
                 File.Delete(item);
-                // Sinon pour déplacer le pdf imprimé vers un rep
-                //System.IO.Directory.CreateDirectory("Archive");
-                //string[] paths = { AppDomain.CurrentDomain.BaseDirectory, "Archive"};
-                //string fullPath = Path.Combine(paths);
-                //File.Move(item, fullPath+ @"\" + Path.GetFileName(item));
-
             }
             button1.Text = "Attente...";
         }
 
-        private static void printMyPdf(string pathofmypdf, string filename)
+        private static void PrintMyPdf(string pathofmypdf, string filename)
         {
 
             string PrinterName = Global.Selectedprinter ;
@@ -91,7 +75,7 @@ namespace WindowsFormsApp1
             foreach (var item in filePaths)
             {
 
-                printMyPdf(item, Path.GetFileName(item));
+                PrintMyPdf(item, Path.GetFileName(item));
                 File.Delete(item);
 
             }
@@ -111,9 +95,8 @@ namespace WindowsFormsApp1
             //fileSystemWatcher.Deleted += FileSystemWatcher_Deleted;
 
             fileSystemWatcher.EnableRaisingEvents = true;
-            this.Text = "Impression...";
             button1.Text = "Impression...";
-            //InitTimer();
+            //on cache les boutons
             comboBox1.Enabled = false;
             comboBox1.Enabled = false;
 
