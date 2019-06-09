@@ -31,7 +31,7 @@ namespace WindowsFormsApp1
         {
             var myprinters = new List<string>();
             InitializeComponent();
-            //lister des imprimantes
+            //list all printer
             foreach (string printer in System.Drawing.Printing.PrinterSettings.InstalledPrinters)
             {
                 myprinters.Add(printer);
@@ -41,7 +41,7 @@ namespace WindowsFormsApp1
                 Global.Selectedprinter = printer;
 
             }
-            //récupérer la valeur dans le ini de config.ini
+            //Get the default printer from config ini file
             if (File.Exists("Configuration.ini")){
                 var parser = new FileIniDataParser();
                 IniData data = parser.ReadFile("Configuration.ini");
@@ -52,25 +52,24 @@ namespace WindowsFormsApp1
         private void Timer1_Tick(object sender, EventArgs e)
         {
             button1.Text = "Impression...";
-            //détecter les fichiers pdf
+            //Detect pdf File
             string[] filePaths = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.pdf");
-            //imprimer les fichiers
+            //print the pdf file
             foreach (var item in filePaths)
             {
                 PrintMyPdf(item, Path.GetFileName(item));
                 File.Delete(item);
             }
             button1.Text = "Attente...";
+           
         }
 
         private static void PrintMyPdf(string pathofmypdf, string filename)
         {
 
             string PrinterName = Global.Selectedprinter ;
-
             // Create an instance of the Printer
             IPrinter printer = new Printer();
-
             // Print the file
             printer.PrintRawFile(PrinterName, pathofmypdf, filename);
         }
@@ -78,9 +77,9 @@ namespace WindowsFormsApp1
         private static void FileSystemWatcher_Created(object sender, FileSystemEventArgs e)
 
         {
-            //détecter les fichiers pdf
+            //list all pdf in directory
             string[] filePaths = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.pdf");
-            //imprimer les fichiers
+            //print pdf file
             foreach (var item in filePaths)
             {
 
@@ -92,23 +91,22 @@ namespace WindowsFormsApp1
         private void Button1_Click(object sender, EventArgs e)
         {
 
-            //surveiller un répertoire
+            //Watch directory
             FileSystemWatcher fileSystemWatcher = new FileSystemWatcher();
 
             fileSystemWatcher.Path = AppDomain.CurrentDomain.BaseDirectory;
-
             fileSystemWatcher.Created += FileSystemWatcher_Created;
-
             fileSystemWatcher.Renamed += FileSystemWatcher_Created;
-
             //fileSystemWatcher.Deleted += FileSystemWatcher_Deleted;
 
             fileSystemWatcher.EnableRaisingEvents = true;
             button1.Text = "Impression...";
-            //on cache les boutons
+            //Disable UI controls
             comboBox1.Enabled = false;
             comboBox1.Enabled = false;
-            //on sauvegarde l'imprimante en cours dans le ini
+            button1.Enabled = false;
+
+            //Save selected print in config ini file
             if (File.Exists("Configuration.ini"))
             {
                 var parser = new FileIniDataParser();
