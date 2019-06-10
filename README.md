@@ -9,3 +9,4 @@ Application Windows d'impression automatique de fichier PDF depuis un répertoir
 ##Le tour est joué
 Application Winforms développé sous VSCE 2019 en C#
 https://www.screencast.com/t/nvLeV6kL8Q
+Dépendance du framework .NET 4.7.2 // ini-parser // RawPrint
