@@ -144,7 +144,7 @@ namespace WindowsFormsApp1
                     //MessageBox.Show(str);
                     PrintBarCode(element.barcode.Replace(";", string.Empty));
                     //send get action for delete barcode
-                    HttpResponseMessage response2 = await client.GetAsync("http://localhost:8000/?id="+element.id);
+                    HttpResponseMessage response2 = await client.GetAsync(Global.Urlmobilespool+"?id="+element.id);
                 }
 
                 //https://tst1.follow-gt.fr/print.php?printedBarcodes=1203,1204
