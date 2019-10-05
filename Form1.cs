@@ -15,7 +15,7 @@ using System.Text;
 using Newtonsoft.Json;
 
 namespace WindowsFormsApp1
-{
+{ 
     public partial class Form1 : Form
     {
         static class Global
