@@ -245,9 +245,12 @@ namespace WindowsFormsApp1
                 button1.Enabled = false;
                 comboBox1.Enabled = false;
                 button2.Enabled = false;
+                button3.Enabled = false;
                 textBox1.Enabled = false;
                 textBox2.Enabled = false;
                 textBox3.Enabled = false;
+                textBox4.Enabled = false;
+                
             }
             else
             {

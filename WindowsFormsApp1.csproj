@@ -7,7 +7,7 @@
     <ProjectGuid>{74A85996-4A0A-4389-9ADF-2033A932EDBB}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>WindowsAutoPrintPdf</RootNamespace>
-    <AssemblyName>WindowsAutoPrintPdf</AssemblyName>
+    <AssemblyName>Spool Wiilog</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
