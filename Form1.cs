@@ -246,6 +246,8 @@ namespace WindowsFormsApp1
                 comboBox1.Enabled = false;
                 button2.Enabled = false;
                 textBox1.Enabled = false;
+                textBox2.Enabled = false;
+                textBox3.Enabled = false;
             }
             else
             {
@@ -282,9 +284,8 @@ namespace WindowsFormsApp1
         {
             int elarg = Int32.Parse(textBox2.Text);
             int ehaut = Int32.Parse(textBox3.Text);
-
             PrintBarCode("BARCODEDETEST123456789", elarg, ehaut);
-            MessageBox.Show("test");
+            //MessageBox.Show("test");
         }
 
             private void GroupBox2_Enter(object sender, EventArgs e)
