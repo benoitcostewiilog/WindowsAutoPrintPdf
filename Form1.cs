@@ -22,6 +22,8 @@ namespace WindowsFormsApp1
         {
             private static string _selectedprinter = "";
             private static string _urlmobilespool = "";
+            private static int _hauteret = 0;
+            private static int _largeuret = 0;
 
             public static string Selectedprinter
             {
@@ -32,6 +34,16 @@ namespace WindowsFormsApp1
             {
                 get { return _urlmobilespool; }
                 set { _urlmobilespool = value; }
+            }
+            public static int Hauteuet
+            {
+                get { return _hauteret; }
+                set { _hauteret = value; }
+            }
+            public static int Largeuret
+            {
+                get { return _largeuret; }
+                set { _largeuret = value; }
             }
         }
         public Form1()
@@ -54,9 +66,15 @@ namespace WindowsFormsApp1
                 IniData data = parser.ReadFile("Configuration.ini");
                 comboBox1.SelectedIndex = comboBox1.FindStringExact(data["AutoPrintPdf"]["Default Print"]);
                 textBox1.Text = data["AutoPrintPdf"]["Url Follow GT"];
+                textBox2.Text = data["AutoPrintPdf"]["Largeur etiquette"];
+                textBox3.Text = data["AutoPrintPdf"]["Hauteur etiquette"];
             }
             //set global url of value of textBox1
             Global.Urlmobilespool = textBox1.Text;
+            if (textBox3.Text == "") { textBox3.Text = "120";} 
+            if ( textBox2.Text == "") { textBox2.Text = "350"; }
+            Global.Hauteuet = Int32.Parse(textBox3.Text);
+            Global.Largeuret = Int32.Parse(textBox2.Text);
         }
         private void Timer1_Tick(object sender, EventArgs e)
         {
@@ -97,7 +115,7 @@ namespace WindowsFormsApp1
 
             }
         }
-        private static string PrintBarCode(string pbc)
+        private static string PrintBarCode(string pbc, int elarg, int ehaut)
         {
             //create barcode img
             string bcodestring = pbc;
@@ -109,11 +127,12 @@ namespace WindowsFormsApp1
             PrintDocument pd = new PrintDocument();
             pd.PrintPage += (senders, args) =>
             {
-                args.Graphics.DrawImage(img, 15, 15, img.Width, img.Height);
+                args.Graphics.DrawImage(img, 15, 15, elarg, ehaut);
                 StringFormat sf = new StringFormat();
                 sf.LineAlignment = StringAlignment.Center;
                 sf.Alignment = StringAlignment.Center;
-                args.Graphics.DrawString(bcodestring, new Font("Arial", 10), Brushes.Black, new PointF(190.0F, 150.0F), sf);
+                //args.Graphics.DrawString(bcodestring, new Font("Arial", 10), Brushes.Black, new PointF((elarg+30)/2, ehaut+30), sf);
+                args.Graphics.DrawString(bcodestring, new Font("Arial", 10), Brushes.Black, new Rectangle(0, ehaut+30, elarg+30, 0), sf);
             };
             pd.PrinterSettings.PrinterName = Global.Selectedprinter;
             pd.Print();
@@ -128,6 +147,7 @@ namespace WindowsFormsApp1
             // Call asynchronous network methods in a try/catch block to handle exceptions.
             try
             {
+
                 HttpResponseMessage response = await client.GetAsync(Global.Urlmobilespool);
                 response.EnsureSuccessStatusCode();
                 string responseBody = await response.Content.ReadAsStringAsync();
@@ -142,7 +162,7 @@ namespace WindowsFormsApp1
                     //string barcode = element.barcode;
                     //string str = element.barcode.Replace(";", string.Empty);
                     //MessageBox.Show(str);
-                    PrintBarCode(element.barcode.Replace(";", string.Empty));
+                    PrintBarCode(element.barcode.Replace(";", string.Empty), 350,120);
                     //send get action for delete barcode
                     HttpResponseMessage response2 = await client.GetAsync(Global.Urlmobilespool+"?id="+element.id);
                 }
@@ -157,7 +177,7 @@ namespace WindowsFormsApp1
         }
         private void Button1_Click(object sender, EventArgs e)
         {
-
+            toolStripStatusLabel1.Text = "impression Auto Print Pdf en cours...";
             //Watch directory
             FileSystemWatcher fileSystemWatcher = new FileSystemWatcher();
 
@@ -206,18 +226,34 @@ namespace WindowsFormsApp1
         private void timer1_Tick(object sender, EventArgs e)
         {
             //run the func witch get and print barcode
+
             getHttpBarcode(Global.Urlmobilespool);
+
+
         }
 
         private void Button2_Click(object sender, EventArgs e)
         {
-            //MessageBox.Show("clic sur le bouton ici");
-            //get values barcode by get http
-            //getHttpBarcode();
-            //printBarCode("PBC1234567891234596789QSDF123456789");
-            InitTimer();
-            button2.Enabled = false;
-            textBox1.Enabled = false;
+
+
+            Global.Urlmobilespool = textBox1.Text;
+            //Run if Url not empty
+            if (Global.Urlmobilespool != "") 
+            {
+                toolStripStatusLabel1.Text = "Impression MobileSpool en cours...";
+                InitTimer();
+                button1.Enabled = false;
+                comboBox1.Enabled = false;
+                button2.Enabled = false;
+                textBox1.Enabled = false;
+            }
+            else
+            {
+                MessageBox.Show("Url d'instance vide, veuillez saisir ce parametre");
+            }
+
+
+
             //Save selected print in config ini file
             if (File.Exists("Configuration.ini"))
             {
@@ -225,7 +261,10 @@ namespace WindowsFormsApp1
                 IniData data = parser.ReadFile("Configuration.ini");
                 data["AutoPrintPdf"]["Default Print"] = comboBox1.SelectedItem.ToString();
                 data["AutoPrintPdf"]["Url Follow GT"] = textBox1.Text;
+                data["AutoPrintPdf"]["Largeur etiquette"] = textBox2.Text;
+                data["AutoPrintPdf"]["Hauteur etiquette"] = textBox3.Text;
                 parser.WriteFile("Configuration.ini", data);
+                Global.Urlmobilespool = textBox1.Text;
             }
             else
             {
@@ -233,11 +272,22 @@ namespace WindowsFormsApp1
                 var parser = new FileIniDataParser();
                 data["AutoPrintPdf"]["Default Print"] = comboBox1.SelectedItem.ToString();
                 data["AutoPrintPdf"]["Url Follow GT"] = textBox1.Text;
+                data["AutoPrintPdf"]["Largeur etiquette"] = textBox2.Text;
+                data["AutoPrintPdf"]["Hauteur etiquette"] = textBox3.Text;
                 parser.WriteFile("Configuration.ini", data);
+                Global.Urlmobilespool = textBox1.Text;
             }
         }
+        private void button3_Click(object sender, EventArgs e)
+        {
+            int elarg = Int32.Parse(textBox2.Text);
+            int ehaut = Int32.Parse(textBox3.Text);
 
-        private void GroupBox2_Enter(object sender, EventArgs e)
+            PrintBarCode("BARCODEDETEST123456789", elarg, ehaut);
+            MessageBox.Show("test");
+        }
+
+            private void GroupBox2_Enter(object sender, EventArgs e)
         {
 
         }
@@ -248,6 +298,11 @@ namespace WindowsFormsApp1
         }
 
         private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label3_Click(object sender, EventArgs e)
         {
 
         }
