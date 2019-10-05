@@ -9,9 +9,7 @@ using IniParser;
 using IniParser.Model;
 using System.Net.Http;
 using System.Drawing.Printing;
-using System.Runtime.Serialization.Json;
 using WindowsAutoPrintPdf.DL;
-using System.Text;
 using Newtonsoft.Json;
 
 namespace WindowsFormsApp1
@@ -45,7 +43,9 @@ namespace WindowsFormsApp1
                 get { return _largeuret; }
                 set { _largeuret = value; }
             }
+
         }
+    
         public Form1()
         {
             var myprinters = new List<string>();
@@ -68,11 +68,13 @@ namespace WindowsFormsApp1
                 textBox1.Text = data["AutoPrintPdf"]["Url Follow GT"];
                 textBox2.Text = data["AutoPrintPdf"]["Largeur etiquette"];
                 textBox3.Text = data["AutoPrintPdf"]["Hauteur etiquette"];
+                textBox4.Text = data["AutoPrintPdf"]["Taille label"];
             }
             //set global url of value of textBox1
-            Global.Urlmobilespool = textBox1.Text;
             if (textBox3.Text == "") { textBox3.Text = "120";} 
             if ( textBox2.Text == "") { textBox2.Text = "350"; }
+            if (textBox4.Text == "") { textBox4.Text = "10"; }
+            Global.Urlmobilespool = textBox1.Text;
             Global.Hauteuet = Int32.Parse(textBox3.Text);
             Global.Largeuret = Int32.Parse(textBox2.Text);
         }
@@ -115,7 +117,7 @@ namespace WindowsFormsApp1
 
             }
         }
-        private static string PrintBarCode(string pbc, int elarg, int ehaut)
+        private static string PrintBarCode(string pbc, int elarg, int ehaut, int taillelabel)
         {
             //create barcode img
             string bcodestring = pbc;
@@ -132,7 +134,7 @@ namespace WindowsFormsApp1
                 sf.LineAlignment = StringAlignment.Center;
                 sf.Alignment = StringAlignment.Center;
                 //args.Graphics.DrawString(bcodestring, new Font("Arial", 10), Brushes.Black, new PointF((elarg+30)/2, ehaut+30), sf);
-                args.Graphics.DrawString(bcodestring, new Font("Arial", 10), Brushes.Black, new Rectangle(0, ehaut+30, elarg+30, 0), sf);
+                args.Graphics.DrawString(bcodestring, new Font("Arial", taillelabel), Brushes.Black, new Rectangle(0, ehaut+30, elarg+30, 0), sf);
             };
             pd.PrinterSettings.PrinterName = Global.Selectedprinter;
             pd.Print();
@@ -147,22 +149,20 @@ namespace WindowsFormsApp1
             // Call asynchronous network methods in a try/catch block to handle exceptions.
             try
             {
-
+                //MessageBox.Show("test1");
                 HttpResponseMessage response = await client.GetAsync(Global.Urlmobilespool);
+
                 response.EnsureSuccessStatusCode();
+      
                 string responseBody = await response.Content.ReadAsStringAsync();
-                // Above three lines can be replaced with new helper method below
-                // string responseBody = await client.GetStringAsync(uri);
-                //MessageBox.Show(responseBody);
+   
                 var result = JsonConvert.DeserializeObject<List<CBarcode>>(responseBody);
 
                 //MessageBox.Show(result[0].id.ToString());
                 foreach(var element in result)
                 {
-                    //string barcode = element.barcode;
-                    //string str = element.barcode.Replace(";", string.Empty);
-                    //MessageBox.Show(str);
-                    PrintBarCode(element.barcode.Replace(";", string.Empty), 350,120);
+       
+                    PrintBarCode(element.barcode.Replace(";", string.Empty), Global.Largeuret,Global.Hauteuet,10);
                     //send get action for delete barcode
                     HttpResponseMessage response2 = await client.GetAsync(Global.Urlmobilespool+"?id="+element.id);
                 }
@@ -265,6 +265,8 @@ namespace WindowsFormsApp1
                 data["AutoPrintPdf"]["Url Follow GT"] = textBox1.Text;
                 data["AutoPrintPdf"]["Largeur etiquette"] = textBox2.Text;
                 data["AutoPrintPdf"]["Hauteur etiquette"] = textBox3.Text;
+                data["AutoPrintPdf"]["Taille label"] = textBox4.Text;
+                textBox4.Text = data["AutoPrintPdf"]["Taille label"];
                 parser.WriteFile("Configuration.ini", data);
                 Global.Urlmobilespool = textBox1.Text;
             }
@@ -276,6 +278,7 @@ namespace WindowsFormsApp1
                 data["AutoPrintPdf"]["Url Follow GT"] = textBox1.Text;
                 data["AutoPrintPdf"]["Largeur etiquette"] = textBox2.Text;
                 data["AutoPrintPdf"]["Hauteur etiquette"] = textBox3.Text;
+                data["AutoPrintPdf"]["Taille label"] = textBox4.Text;
                 parser.WriteFile("Configuration.ini", data);
                 Global.Urlmobilespool = textBox1.Text;
             }
@@ -284,7 +287,8 @@ namespace WindowsFormsApp1
         {
             int elarg = Int32.Parse(textBox2.Text);
             int ehaut = Int32.Parse(textBox3.Text);
-            PrintBarCode("BARCODEDETEST123456789", elarg, ehaut);
+            int tailllab = Int32.Parse(textBox4.Text);
+            PrintBarCode("BARCODEDETEST123456789", elarg, ehaut,tailllab);
             //MessageBox.Show("test");
         }
 
@@ -304,6 +308,11 @@ namespace WindowsFormsApp1
         }
 
         private void label3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void statusStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
 
         }
