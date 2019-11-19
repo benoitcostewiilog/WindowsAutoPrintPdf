@@ -122,7 +122,8 @@ namespace WindowsFormsApp1
             //create barcode img
             string bcodestring = pbc;
             BarcodeLib.Barcode b = new BarcodeLib.Barcode();
-            Image img = b.Encode(BarcodeLib.TYPE.CODE128, bcodestring, Color.Black, Color.White, 350, 120);
+            //Image img = b.Encode(BarcodeLib.TYPE.CODE128, bcodestring, Color.Black, Color.White, 350, 120);
+            Image img = b.Encode(BarcodeLib.TYPE.CODE128, bcodestring);
             //img.Save(bcodestring + ".jpg");
 
             //print the image
