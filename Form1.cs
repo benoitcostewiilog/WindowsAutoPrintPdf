@@ -11,6 +11,9 @@ using System.Net.Http;
 using System.Drawing.Printing;
 using WindowsAutoPrintPdf.DL;
 using Newtonsoft.Json;
+using ZXing.Common;
+using ZXing;
+using ZXing.QrCode;
 
 namespace WindowsFormsApp1
 { 
@@ -119,23 +122,59 @@ namespace WindowsFormsApp1
         }
         private static string PrintBarCode(string pbc, int elarg, int ehaut, int taillelabel)
         {
+            ////////////// BARCODE 
             //create barcode img
+            /*
             string bcodestring = pbc;
             BarcodeLib.Barcode b = new BarcodeLib.Barcode();
             //Image img = b.Encode(BarcodeLib.TYPE.CODE128, bcodestring, Color.Black, Color.White, 350, 120);
             Image img = b.Encode(BarcodeLib.TYPE.CODE128, bcodestring);
+            
             //img.Save(bcodestring + ".jpg");
+            */
+            string bcodestring = pbc;
+
+            //BarcodeLib.Barcode b = new BarcodeLib.Barcode();
+            ////////////// QR Code 
+
+            QrCodeEncodingOptions options = new QrCodeEncodingOptions();
+            options = new QrCodeEncodingOptions
+            {
+                DisableECI = true,
+                CharacterSet = "UTF-8",
+                Width = 500,
+                Height = 500,
+            };
+            var writer = new BarcodeWriter();
+            writer.Format = BarcodeFormat.QR_CODE;
+            writer.Options = options;
+
+            var qr = new ZXing.BarcodeWriter();
+            qr.Options = options;
+            qr.Format = ZXing.BarcodeFormat.QR_CODE;
+            Image img = new Bitmap(qr.Write(bcodestring));
+   
+            ////////////// QR CODE
 
             //print the image
             PrintDocument pd = new PrintDocument();
+            //pd.PrinterSettings.DefaultPageSettings.PaperSize = new PaperSize("210 x 297 mm", Convert.ToInt32(elarg * 0.393701), Convert.ToInt32(ehaut * 0.393701));
+
             pd.PrintPage += (senders, args) =>
             {
-                args.Graphics.DrawImage(img, 15, 15, elarg, ehaut);
+                //Ajout du logo : 
+                Image logosociete = Image.FromFile("logo.png");
+                int tailleqrcode = Convert.ToInt32(ehaut * (float)0.8);
+                args.Graphics.DrawImage(logosociete, Convert.ToInt32(ehaut * (float)0.2), Convert.ToInt32(ehaut * (float)0.2), 70,30);
+
+                args.Graphics.DrawImage(img, (elarg - tailleqrcode) / 2, Convert.ToInt32(ehaut*(float)0.2), tailleqrcode, tailleqrcode);
                 StringFormat sf = new StringFormat();
                 sf.LineAlignment = StringAlignment.Center;
                 sf.Alignment = StringAlignment.Center;
                 //args.Graphics.DrawString(bcodestring, new Font("Arial", 10), Brushes.Black, new PointF((elarg+30)/2, ehaut+30), sf);
-                args.Graphics.DrawString(bcodestring, new Font("Arial", taillelabel), Brushes.Black, new Rectangle(0, ehaut+30, elarg+30, 0), sf);
+                args.Graphics.DrawString(bcodestring, new Font("Arial", taillelabel), Brushes.Black, new Rectangle(0, ehaut+30, elarg, 0), sf);
+                args.Graphics.DrawString("GT Logistics", new Font("Arial", taillelabel), Brushes.Black, new Rectangle(0, ehaut + 45, elarg, 0), sf);
+
             };
             pd.PrinterSettings.PrinterName = Global.Selectedprinter;
             pd.Print();
@@ -221,7 +260,7 @@ namespace WindowsFormsApp1
         {
             TimerMobileSpool = new Timer();
             TimerMobileSpool.Tick += new EventHandler(timer1_Tick);
-            TimerMobileSpool.Interval = 7000; // in miliseconds
+            TimerMobileSpool.Interval = 4000; // in miliseconds
             TimerMobileSpool.Start();
         }
         private void timer1_Tick(object sender, EventArgs e)
@@ -292,7 +331,7 @@ namespace WindowsFormsApp1
             int elarg = Int32.Parse(textBox2.Text);
             int ehaut = Int32.Parse(textBox3.Text);
             int tailllab = Int32.Parse(textBox4.Text);
-            PrintBarCode("BARCODEDETEST123456789", elarg, ehaut,tailllab);
+            PrintBarCode("BARCODEDETEST123456789AZERTYUIOP", elarg, ehaut,tailllab);
             //MessageBox.Show("test");
         }
 
