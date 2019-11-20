@@ -25,6 +25,7 @@ namespace WindowsFormsApp1
             private static string _urlmobilespool = "";
             private static int _hauteret = 0;
             private static int _largeuret = 0;
+            private static int _taillelabel = 0;
 
             public static string Selectedprinter
             {
@@ -45,6 +46,11 @@ namespace WindowsFormsApp1
             {
                 get { return _largeuret; }
                 set { _largeuret = value; }
+            }
+            public static int taillelabel
+            {
+                get { return _taillelabel; }
+                set { _taillelabel = value; }
             }
 
         }
@@ -80,6 +86,7 @@ namespace WindowsFormsApp1
             Global.Urlmobilespool = textBox1.Text;
             Global.Hauteuet = Int32.Parse(textBox3.Text);
             Global.Largeuret = Int32.Parse(textBox2.Text);
+            Global.taillelabel = Int32.Parse(textBox4.Text);
         }
         private void Timer1_Tick(object sender, EventArgs e)
         {
@@ -120,22 +127,17 @@ namespace WindowsFormsApp1
 
             }
         }
-        private static string PrintBarCode(string pbc, int elarg, int ehaut, int taillelabel)
+        private static string PrintBarCode(string pbc, int elarg, int ehaut, int mytaillelabel)
         {
             ////////////// BARCODE 
-            //create barcode img
-            /*
-            string bcodestring = pbc;
-            BarcodeLib.Barcode b = new BarcodeLib.Barcode();
-            //Image img = b.Encode(BarcodeLib.TYPE.CODE128, bcodestring, Color.Black, Color.White, 350, 120);
-            Image img = b.Encode(BarcodeLib.TYPE.CODE128, bcodestring);
-            
-            //img.Save(bcodestring + ".jpg");
-            */
-            string bcodestring = pbc;
 
-            //BarcodeLib.Barcode b = new BarcodeLib.Barcode();
-            ////////////// QR Code 
+
+            string[] barcodetab = pbc.Split(';');
+            string emplacementdestination = "";
+            if (barcodetab.Length>1)
+            {
+                emplacementdestination = barcodetab[1];
+            }
 
             QrCodeEncodingOptions options = new QrCodeEncodingOptions();
             options = new QrCodeEncodingOptions
@@ -152,7 +154,7 @@ namespace WindowsFormsApp1
             var qr = new ZXing.BarcodeWriter();
             qr.Options = options;
             qr.Format = ZXing.BarcodeFormat.QR_CODE;
-            Image img = new Bitmap(qr.Write(bcodestring));
+            Image img = new Bitmap(qr.Write(barcodetab[0]));
    
             ////////////// QR CODE
 
@@ -165,20 +167,20 @@ namespace WindowsFormsApp1
                 //Ajout du logo : 
                 Image logosociete = Image.FromFile("logo.png");
                 int tailleqrcode = Convert.ToInt32(ehaut * (float)0.8);
-                args.Graphics.DrawImage(logosociete, Convert.ToInt32(ehaut * (float)0.2), Convert.ToInt32(ehaut * (float)0.2), 70,30);
+                args.Graphics.DrawImage(logosociete, 10, Convert.ToInt32(ehaut * (float)0.2), 70,30);
 
                 args.Graphics.DrawImage(img, (elarg - tailleqrcode) / 2, Convert.ToInt32(ehaut*(float)0.2), tailleqrcode, tailleqrcode);
                 StringFormat sf = new StringFormat();
                 sf.LineAlignment = StringAlignment.Center;
                 sf.Alignment = StringAlignment.Center;
                 //args.Graphics.DrawString(bcodestring, new Font("Arial", 10), Brushes.Black, new PointF((elarg+30)/2, ehaut+30), sf);
-                args.Graphics.DrawString(bcodestring, new Font("Arial", taillelabel), Brushes.Black, new Rectangle(0, ehaut+30, elarg, 0), sf);
-                args.Graphics.DrawString("GT Logistics", new Font("Arial", taillelabel), Brushes.Black, new Rectangle(0, ehaut + 45, elarg, 0), sf);
+                args.Graphics.DrawString(barcodetab[0], new Font("Arial", mytaillelabel), Brushes.Black, new Rectangle(0, ehaut+30, elarg, 0), sf);
+                args.Graphics.DrawString(emplacementdestination, new Font("Arial", mytaillelabel), Brushes.Black, new Rectangle(0, ehaut + 45, elarg, 0), sf);
 
             };
             pd.PrinterSettings.PrinterName = Global.Selectedprinter;
             pd.Print();
-            return bcodestring;
+            return barcodetab[0];
 
         }
         //Method for HTTP GET instanciate just one time
@@ -202,7 +204,9 @@ namespace WindowsFormsApp1
                 foreach(var element in result)
                 {
        
-                    PrintBarCode(element.barcode.Replace(";", string.Empty), Global.Largeuret,Global.Hauteuet,10);
+                    //PrintBarCode(element.barcode.Replace(";", string.Empty), Global.Largeuret,Global.Hauteuet,10);
+                    PrintBarCode(element.barcode, Global.Largeuret, Global.Hauteuet, Global.taillelabel);
+
                     //send get action for delete barcode
                     HttpResponseMessage response2 = await client.GetAsync(Global.Urlmobilespool+"?id="+element.id);
                 }
@@ -331,7 +335,7 @@ namespace WindowsFormsApp1
             int elarg = Int32.Parse(textBox2.Text);
             int ehaut = Int32.Parse(textBox3.Text);
             int tailllab = Int32.Parse(textBox4.Text);
-            PrintBarCode("BARCODEDETEST123456789AZERTYUIOP", elarg, ehaut,tailllab);
+            PrintBarCode("BARCODEDETEST123456789AZERTYUIOP", elarg, ehaut,Global.taillelabel);
             //MessageBox.Show("test");
         }
 
