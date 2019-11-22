@@ -131,12 +131,22 @@ namespace WindowsFormsApp1
         {
             ////////////// BARCODE 
 
-
+            //on récupère la données emplacement de destination
             string[] barcodetab = pbc.Split(';');
             string emplacementdestination = "";
             if (barcodetab.Length>1)
             {
                 emplacementdestination = barcodetab[1];
+            }
+            //on modifie le barcode en lui ajoutant un tiret
+            string labelbarcode = "";
+            if (barcodetab[0].Length > 13)
+            {
+                labelbarcode = barcodetab[0].Insert(13, "-");
+            }
+            else
+            {
+                labelbarcode = barcodetab[0];
             }
 
             QrCodeEncodingOptions options = new QrCodeEncodingOptions();
@@ -174,7 +184,7 @@ namespace WindowsFormsApp1
                 sf.LineAlignment = StringAlignment.Center;
                 sf.Alignment = StringAlignment.Center;
                 //args.Graphics.DrawString(bcodestring, new Font("Arial", 10), Brushes.Black, new PointF((elarg+30)/2, ehaut+30), sf);
-                args.Graphics.DrawString(barcodetab[0], new Font("Arial", mytaillelabel), Brushes.Black, new Rectangle(0, ehaut+30, elarg, 0), sf);
+                args.Graphics.DrawString(labelbarcode, new Font("Arial", mytaillelabel), Brushes.Black, new Rectangle(0, ehaut+30, elarg, 0), sf);
                 args.Graphics.DrawString(emplacementdestination, new Font("Arial", mytaillelabel), Brushes.Black, new Rectangle(0, ehaut + 45, elarg, 0), sf);
 
             };
@@ -335,7 +345,7 @@ namespace WindowsFormsApp1
             int elarg = Int32.Parse(textBox2.Text);
             int ehaut = Int32.Parse(textBox3.Text);
             int tailllab = Int32.Parse(textBox4.Text);
-            PrintBarCode("BARCODEDETEST123456789AZERTYUIOP", elarg, ehaut,Global.taillelabel);
+            PrintBarCode("S1911220803021", elarg, ehaut,Global.taillelabel);
             //MessageBox.Show("test");
         }
 
