@@ -1,5 +1,4 @@
-﻿using RawPrint;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -14,6 +13,8 @@ using Newtonsoft.Json;
 using ZXing.Common;
 using ZXing;
 using ZXing.QrCode;
+using System.Diagnostics;
+using Ghostscript.NET.Processor;
 
 namespace WindowsFormsApp1
 { 
@@ -23,6 +24,7 @@ namespace WindowsFormsApp1
         {
             private static string _selectedprinter = "";
             private static string _urlmobilespool = "";
+            private static string _repertoire = "";
             private static int _hauteret = 0;
             private static int _largeuret = 0;
             private static int _taillelabel = 0;
@@ -52,6 +54,11 @@ namespace WindowsFormsApp1
                 get { return _taillelabel; }
                 set { _taillelabel = value; }
             }
+            public static string Repertoire
+            {
+                get { return _repertoire; }
+                set { _repertoire = value; }
+            }
 
         }
     
@@ -65,9 +72,7 @@ namespace WindowsFormsApp1
                 myprinters.Add(printer);
                 comboBox1.Items.Add(printer);
                 comboBox1.SelectedIndex = comboBox1.FindStringExact(printer);
-                //MessageBox.Show(printer);
                 Global.Selectedprinter = printer;
-
             }
             //Get the default printer from config ini file
             if (File.Exists("Configuration.ini")){
@@ -78,67 +83,89 @@ namespace WindowsFormsApp1
                 textBox2.Text = data["AutoPrintPdf"]["Largeur etiquette"];
                 textBox3.Text = data["AutoPrintPdf"]["Hauteur etiquette"];
                 textBox4.Text = data["AutoPrintPdf"]["Taille label"];
+                textBox5.Text = data["AutoPrintPdf"]["Repertoire"];
             }
             //set global url of value of textBox1
             if (textBox3.Text == "") { textBox3.Text = "120";} 
             if ( textBox2.Text == "") { textBox2.Text = "350"; }
             if (textBox4.Text == "") { textBox4.Text = "10"; }
+            if(textBox5.Text == "") { textBox5.Text = @"C:\TelechargementChrome"; }
             Global.Urlmobilespool = textBox1.Text;
             Global.Hauteuet = Int32.Parse(textBox3.Text);
             Global.Largeuret = Int32.Parse(textBox2.Text);
             Global.taillelabel = Int32.Parse(textBox4.Text);
+            Global.Repertoire = textBox5.Text;
         }
         private void Timer1_Tick(object sender, EventArgs e)
         {
+            /*
             button1.Text = "Impression...";
             //Detect pdf File
             string[] filePaths = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.pdf");
             //print the pdf file
             foreach (var item in filePaths)
             {
-                PrintMyPdf(item, Path.GetFileName(item));
-                File.Delete(item);
+                if (item.Contains("ETQ"))
+                {
+                    button1.Text = item;
+                    PrintMyPdf(item);
+                    File.Delete(item);
+                }
             }
             button1.Text = "Attente...";
-           
+           */
         }
 
-        private static void PrintMyPdf(string pathofmypdf, string filename)
+        private static void PrintMyPdf(string pathofmypdf)
         {
+            string printerName = Global.Selectedprinter;
+            string inputFile = pathofmypdf;
 
-            string PrinterName = Global.Selectedprinter ;
-            // Create an instance of the Printer
-            IPrinter printer = new Printer();
-            // Print the file
-            printer.PrintRawFile(PrinterName, pathofmypdf, filename);
+            using (GhostscriptProcessor processor = new GhostscriptProcessor())
+            {
+                List<string> switches = new List<string>();
+                switches.Add("-empty");
+                switches.Add("-dPrinted");
+                switches.Add("-dBATCH");
+                switches.Add("-dNOPAUSE");
+                switches.Add("-dNOSAFER");
+                switches.Add("-dNumCopies=1");
+                switches.Add("-sDEVICE=mswinpr2");
+                switches.Add("-sOutputFile=%printer%" + printerName);
+                switches.Add("-f");
+                switches.Add(inputFile);
+
+                processor.StartProcessing(switches.ToArray(), null);
+            }
         }
 
         private static void FileSystemWatcher_Created(object sender, FileSystemEventArgs e)
 
         {
             //list all pdf in directory
-            string[] filePaths = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.pdf");
+            string[] filePaths = Directory.GetFiles(Global.Repertoire, "*.pdf");
             //print pdf file
             foreach (var item in filePaths)
             {
-
-                PrintMyPdf(item, Path.GetFileName(item));
-                File.Delete(item);
-
+                if (item.Contains("ETQ"))
+                { 
+                    PrintMyPdf(item);
+                    File.Delete(item);
+                }
             }
         }
         private static string PrintBarCode(string pbc, int elarg, int ehaut, int mytaillelabel)
         {
-            ////////////// BARCODE 
+          
 
-            //on récupère la données emplacement de destination
+            //Split data to get dropzone and barcode
             string[] barcodetab = pbc.Split(';');
             string emplacementdestination = "";
             if (barcodetab.Length>1)
             {
                 emplacementdestination = barcodetab[1];
             }
-            //on modifie le barcode en lui ajoutant un tiret
+            //Add dash to the barcode
             string labelbarcode = "";
             if (barcodetab[0].Length > 13)
             {
@@ -166,15 +193,13 @@ namespace WindowsFormsApp1
             qr.Format = ZXing.BarcodeFormat.QR_CODE;
             Image img = new Bitmap(qr.Write(barcodetab[0]));
    
-            ////////////// QR CODE
+            //QR CODE
 
             //print the image
             PrintDocument pd = new PrintDocument();
-            //pd.PrinterSettings.DefaultPageSettings.PaperSize = new PaperSize("210 x 297 mm", Convert.ToInt32(elarg * 0.393701), Convert.ToInt32(ehaut * 0.393701));
-
             pd.PrintPage += (senders, args) =>
             {
-                //Ajout du logo : 
+                //add logo image : 
                 Image logosociete = Image.FromFile("logo.png");
                 int tailleqrcode = Convert.ToInt32(ehaut * (float)0.8);
                 args.Graphics.DrawImage(logosociete, 10, Convert.ToInt32(ehaut * (float)0.2), 70,30);
@@ -203,17 +228,12 @@ namespace WindowsFormsApp1
             {
                 //MessageBox.Show("test1");
                 HttpResponseMessage response = await client.GetAsync(Global.Urlmobilespool);
-
                 response.EnsureSuccessStatusCode();
-      
                 string responseBody = await response.Content.ReadAsStringAsync();
-   
                 var result = JsonConvert.DeserializeObject<List<CBarcode>>(responseBody);
-
                 //MessageBox.Show(result[0].id.ToString());
                 foreach(var element in result)
                 {
-       
                     //PrintBarCode(element.barcode.Replace(";", string.Empty), Global.Largeuret,Global.Hauteuet,10);
                     PrintBarCode(element.barcode, Global.Largeuret, Global.Hauteuet, Global.taillelabel);
 
@@ -231,37 +251,32 @@ namespace WindowsFormsApp1
         }
         private void Button1_Click(object sender, EventArgs e)
         {
-            toolStripStatusLabel1.Text = "impression Auto Print Pdf en cours...";
-            //Watch directory
-            FileSystemWatcher fileSystemWatcher = new FileSystemWatcher();
-
-            fileSystemWatcher.Path = AppDomain.CurrentDomain.BaseDirectory;
-            fileSystemWatcher.Created += FileSystemWatcher_Created;
-            fileSystemWatcher.Renamed += FileSystemWatcher_Created;
-            //fileSystemWatcher.Deleted += FileSystemWatcher_Deleted;
-
-            fileSystemWatcher.EnableRaisingEvents = true;
-            button1.Text = "Impression...";
-            //Disable UI controls
-            comboBox1.Enabled = false;
-            comboBox1.Enabled = false;
-            button1.Enabled = false;
-
-            //Save selected print in config ini file
-            if (File.Exists("Configuration.ini"))
+            if (Directory.Exists(textBox5.Text))
             {
-                var parser = new FileIniDataParser();
-                IniData data = parser.ReadFile("Configuration.ini");
-                data["AutoPrintPdf"]["Default Print"] = comboBox1.SelectedItem.ToString();
-                parser.WriteFile("Configuration.ini", data);
+                //Reset directory for autowatch pdf
+                textBox5.Enabled = false;
+                Global.Repertoire = textBox5.Text;
+                toolStripStatusLabel1.Text = "impression Auto Print Pdf en cours...";
+
+                //Watch directory
+                FileSystemWatcher fileSystemWatcher = new FileSystemWatcher();
+
+                fileSystemWatcher.Path = Global.Repertoire;
+                fileSystemWatcher.Created += FileSystemWatcher_Created;
+                //fileSystemWatcher.Renamed += FileSystemWatcher_Created;
+                //fileSystemWatcher.Deleted += FileSystemWatcher_Deleted;
+
+                fileSystemWatcher.EnableRaisingEvents = true;
+                button1.Text = "Impression...";
+                disableAllControls();
+                saveInifile();
             }
             else
             {
-                IniData data = new IniData();
-                var parser = new FileIniDataParser();
-                data["AutoPrintPdf"]["Default Print"] = comboBox1.SelectedItem.ToString();
-                parser.WriteFile("Configuration.ini", data);
+                MessageBox.Show("Le répertoire saisit n'existe pas");
+                textBox5.Focus();
             }
+                
         }
 
         private void ComboBox1_SelectedIndexChanged(object sender, EventArgs e)
@@ -292,27 +307,37 @@ namespace WindowsFormsApp1
 
             Global.Urlmobilespool = textBox1.Text;
             //Run if Url not empty
-            if (Global.Urlmobilespool != "") 
+            if (Global.Urlmobilespool != "")
             {
                 toolStripStatusLabel1.Text = "Impression MobileSpool en cours...";
                 InitTimer();
-                button1.Enabled = false;
-                comboBox1.Enabled = false;
-                button2.Enabled = false;
-                button3.Enabled = false;
-                textBox1.Enabled = false;
-                textBox2.Enabled = false;
-                textBox3.Enabled = false;
-                textBox4.Enabled = false;
-                
+                disableAllControls();
+
             }
             else
             {
                 MessageBox.Show("Url d'instance vide, veuillez saisir ce parametre");
+                textBox1.Focus();
             }
 
+            saveInifile();
+        }
 
+        private void disableAllControls()
+        {
+            button1.Enabled = false;
+            comboBox1.Enabled = false;
+            button2.Enabled = false;
+            button3.Enabled = false;
+            textBox1.Enabled = false;
+            textBox2.Enabled = false;
+            textBox3.Enabled = false;
+            textBox4.Enabled = false;
+            textBox5.Enabled = false;
+        }
 
+        private void saveInifile()
+        {
             //Save selected print in config ini file
             if (File.Exists("Configuration.ini"))
             {
@@ -323,6 +348,7 @@ namespace WindowsFormsApp1
                 data["AutoPrintPdf"]["Largeur etiquette"] = textBox2.Text;
                 data["AutoPrintPdf"]["Hauteur etiquette"] = textBox3.Text;
                 data["AutoPrintPdf"]["Taille label"] = textBox4.Text;
+                data["AutoPrintPdf"]["Repertoire"] = textBox5.Text;
                 textBox4.Text = data["AutoPrintPdf"]["Taille label"];
                 parser.WriteFile("Configuration.ini", data);
                 Global.Urlmobilespool = textBox1.Text;
@@ -336,10 +362,12 @@ namespace WindowsFormsApp1
                 data["AutoPrintPdf"]["Largeur etiquette"] = textBox2.Text;
                 data["AutoPrintPdf"]["Hauteur etiquette"] = textBox3.Text;
                 data["AutoPrintPdf"]["Taille label"] = textBox4.Text;
+                data["AutoPrintPdf"]["Repertoire"] = textBox5.Text;
                 parser.WriteFile("Configuration.ini", data);
                 Global.Urlmobilespool = textBox1.Text;
             }
         }
+
         private void button3_Click(object sender, EventArgs e)
         {
             int elarg = Int32.Parse(textBox2.Text);
@@ -370,6 +398,31 @@ namespace WindowsFormsApp1
         }
 
         private void statusStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+
+        }
+
+        private void Label6_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void TextBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void GroupBox1_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Button4_Click(object sender, EventArgs e)
         {
 
         }
