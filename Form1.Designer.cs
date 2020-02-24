@@ -40,6 +40,8 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.textBox5 = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
             this.textBox4 = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
             this.button3 = new System.Windows.Forms.Button();
@@ -47,8 +49,6 @@
             this.label4 = new System.Windows.Forms.Label();
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.textBox5 = new System.Windows.Forms.TextBox();
-            this.label6 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.statusStrip1.SuspendLayout();
@@ -138,7 +138,7 @@
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 411);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 409);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(417, 22);
             this.statusStrip1.TabIndex = 7;
@@ -167,10 +167,27 @@
             this.groupBox3.Controls.Add(this.label2);
             this.groupBox3.Location = new System.Drawing.Point(12, 81);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(392, 316);
+            this.groupBox3.Size = new System.Drawing.Size(392, 319);
             this.groupBox3.TabIndex = 8;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Parametrage";
+            // 
+            // textBox5
+            // 
+            this.textBox5.Location = new System.Drawing.Point(6, 282);
+            this.textBox5.Name = "textBox5";
+            this.textBox5.Size = new System.Drawing.Size(377, 20);
+            this.textBox5.TabIndex = 1;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(6, 266);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(124, 13);
+            this.label6.TabIndex = 12;
+            this.label6.Text = "Répertoire Auto Print Pdf";
+            this.label6.Click += new System.EventHandler(this.Label6_Click);
             // 
             // textBox4
             // 
@@ -184,9 +201,9 @@
             this.label5.AutoSize = true;
             this.label5.Location = new System.Drawing.Point(3, 190);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(72, 13);
+            this.label5.Size = new System.Drawing.Size(91, 13);
             this.label5.TabIndex = 10;
-            this.label5.Text = "Taille du label";
+            this.label5.Text = "Taille du label (Pt)";
             // 
             // button3
             // 
@@ -210,9 +227,9 @@
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(3, 151);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(89, 13);
+            this.label4.Size = new System.Drawing.Size(108, 13);
             this.label4.TabIndex = 8;
-            this.label4.Text = "Hauteur étiquette";
+            this.label4.Text = "Hauteur étiquette (Pt)";
             // 
             // textBox2
             // 
@@ -226,33 +243,16 @@
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(3, 112);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(87, 13);
+            this.label3.Size = new System.Drawing.Size(106, 13);
             this.label3.TabIndex = 6;
-            this.label3.Text = "Largeur étiquette";
+            this.label3.Text = "Largeur étiquette (Pt)";
             this.label3.Click += new System.EventHandler(this.label3_Click);
-            // 
-            // textBox5
-            // 
-            this.textBox5.Location = new System.Drawing.Point(6, 282);
-            this.textBox5.Name = "textBox5";
-            this.textBox5.Size = new System.Drawing.Size(377, 20);
-            this.textBox5.TabIndex = 1;
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(6, 266);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(124, 13);
-            this.label6.TabIndex = 12;
-            this.label6.Text = "Répertoire Auto Print Pdf";
-            this.label6.Click += new System.EventHandler(this.Label6_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(417, 433);
+            this.ClientSize = new System.Drawing.Size(417, 431);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.groupBox2);

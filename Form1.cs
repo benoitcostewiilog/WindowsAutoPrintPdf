@@ -75,7 +75,8 @@ namespace WindowsFormsApp1
                 Global.Selectedprinter = printer;
             }
             //Get the default printer from config ini file
-            if (File.Exists("Configuration.ini")){
+            if (File.Exists("Configuration.ini"))
+            {
                 var parser = new FileIniDataParser();
                 IniData data = parser.ReadFile("Configuration.ini");
                 comboBox1.SelectedIndex = comboBox1.FindStringExact(data["AutoPrintPdf"]["Default Print"]);
@@ -85,17 +86,23 @@ namespace WindowsFormsApp1
                 textBox4.Text = data["AutoPrintPdf"]["Taille label"];
                 textBox5.Text = data["AutoPrintPdf"]["Repertoire"];
             }
+            setGlobalVariables();
+        }
+
+        private void setGlobalVariables()
+        {
             //set global url of value of textBox1
-            if (textBox3.Text == "") { textBox3.Text = "120";} 
-            if ( textBox2.Text == "") { textBox2.Text = "350"; }
+            if (textBox3.Text == "") { textBox3.Text = "120"; }
+            if (textBox2.Text == "") { textBox2.Text = "350"; }
             if (textBox4.Text == "") { textBox4.Text = "10"; }
-            if(textBox5.Text == "") { textBox5.Text = @"C:\TelechargementChrome"; }
+            if (textBox5.Text == "") { textBox5.Text = @"C:\TelechargementChrome"; }
             Global.Urlmobilespool = textBox1.Text;
             Global.Hauteuet = Int32.Parse(textBox3.Text);
             Global.Largeuret = Int32.Parse(textBox2.Text);
             Global.taillelabel = Int32.Parse(textBox4.Text);
             Global.Repertoire = textBox5.Text;
         }
+
         private void Timer1_Tick(object sender, EventArgs e)
         {
             /*
@@ -131,6 +138,8 @@ namespace WindowsFormsApp1
                 switches.Add("-dNOSAFER");
                 switches.Add("-dNumCopies=1");
                 switches.Add("-sDEVICE=mswinpr2");
+                switches.Add("-dDEVICEWIDTHPOINTS="+Global.Largeuret); //-dDEVICEWIDTHPOINTS=w -dDEVICEHEIGHTPOINTS=h
+                switches.Add("-dDEVICEHEIGHTPOINTS="+Global.Hauteuet);
                 switches.Add("-sOutputFile=%printer%" + printerName);
                 switches.Add("-f");
                 switches.Add(inputFile);
@@ -251,6 +260,7 @@ namespace WindowsFormsApp1
         }
         private void Button1_Click(object sender, EventArgs e)
         {
+            setGlobalVariables();
             if (Directory.Exists(textBox5.Text))
             {
                 //Reset directory for autowatch pdf
@@ -303,9 +313,7 @@ namespace WindowsFormsApp1
 
         private void Button2_Click(object sender, EventArgs e)
         {
-
-
-            Global.Urlmobilespool = textBox1.Text;
+            setGlobalVariables();
             //Run if Url not empty
             if (Global.Urlmobilespool != "")
             {
@@ -370,14 +378,18 @@ namespace WindowsFormsApp1
 
         private void button3_Click(object sender, EventArgs e)
         {
+            setGlobalVariables();
+
             int elarg = Int32.Parse(textBox2.Text);
             int ehaut = Int32.Parse(textBox3.Text);
             int tailllab = Int32.Parse(textBox4.Text);
             PrintBarCode("S1911220803021", elarg, ehaut,Global.taillelabel);
             //MessageBox.Show("test");
+            saveInifile();
+
         }
 
-            private void GroupBox2_Enter(object sender, EventArgs e)
+        private void GroupBox2_Enter(object sender, EventArgs e)
         {
 
         }
