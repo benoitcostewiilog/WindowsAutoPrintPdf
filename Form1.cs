@@ -151,17 +151,25 @@ namespace WindowsFormsApp1
         private static void FileSystemWatcher_Created(object sender, FileSystemEventArgs e)
 
         {
+            /*
+            MessageBox.Show(e.FullPath);
             //list all pdf in directory
             string[] filePaths = Directory.GetFiles(Global.Repertoire, "*.pdf");
             //print pdf file
             foreach (var item in filePaths)
             {
                 if (item.Contains("ETQ"))
-                { 
-                    PrintMyPdf(item);
-                    File.Delete(item);
-                }
-            }
+                { */
+                //MessageBox.Show(e.Name);
+                //if (e.Name.Contains("ETQ"))
+                //{
+                    PrintMyPdf(e.FullPath);
+                    File.Delete(e.FullPath);
+
+                //}
+            /*
+        }
+    }*/
         }
         private static string PrintBarCode(string pbc, int elarg, int ehaut, int mytaillelabel)
         {
@@ -272,8 +280,9 @@ namespace WindowsFormsApp1
                 FileSystemWatcher fileSystemWatcher = new FileSystemWatcher();
 
                 fileSystemWatcher.Path = Global.Repertoire;
+                fileSystemWatcher.Filter = "ETQ*.pdf";
                 fileSystemWatcher.Created += FileSystemWatcher_Created;
-                //fileSystemWatcher.Renamed += FileSystemWatcher_Created;
+                fileSystemWatcher.Renamed += FileSystemWatcher_Created;
                 //fileSystemWatcher.Deleted += FileSystemWatcher_Deleted;
 
                 fileSystemWatcher.EnableRaisingEvents = true;
