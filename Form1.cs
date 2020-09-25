@@ -180,10 +180,10 @@ namespace WindowsFormsApp1
                     switches.Add("-dNumCopies=1");
                     switches.Add("-sDEVICE=mswinpr2");
                     int largeurghostscript = Convert.ToInt32(Global.Largeuret / 100 * 72 / 2.54); //millimetre en inch, 72 point par inch
-                    MessageBox.Show(largeurghostscript.ToString());
+                    //MessageBox.Show(largeurghostscript.ToString());
                     switches.Add("-dDEVICEWIDTHPOINTS=" + largeurghostscript); //-dDEVICEWIDTHPOINTS=w -dDEVICEHEIGHTPOINTS=h
                     int hauteurghostscript = Convert.ToInt32(Global.Hauteuet /100 * 72 / 2.54);
-                    MessageBox.Show(hauteurghostscript.ToString());
+                    //MessageBox.Show(hauteurghostscript.ToString());
                     switches.Add("-dDEVICEHEIGHTPOINTS=" + hauteurghostscript);
                     switches.Add("-sOutputFile=%printer%" + printerName);
                     switches.Add("-f");
