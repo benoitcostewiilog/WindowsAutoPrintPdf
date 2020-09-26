@@ -16,6 +16,7 @@ using ZXing.QrCode;
 using System.Diagnostics;
 using Ghostscript.NET.Processor;
 using System.Net;
+using WindowsAutoPrintPdf.STATIC;
 
 namespace WindowsFormsApp1
 {
@@ -531,6 +532,13 @@ namespace WindowsFormsApp1
                     break;
             }
 
+        }
+
+        private void button2_Click_2(object sender, EventArgs e)
+        {
+            //utilisation de pdfium sans dépendances ghostscript
+            PrintPdf.PrintPDF("Microsoft Print to PDF", "test", "ETQ_arrivage_200529094813.pdf", 1);
+            MessageBox.Show("fin de l'impression");
         }
     }
 }
