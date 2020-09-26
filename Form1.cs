@@ -268,10 +268,14 @@ namespace WindowsFormsApp1
             pd.PrintPage += (senders, args) =>
             {
                 //add logo image : 
+                if(File.Exists("logo.png")){
                 Image logosociete = Image.FromFile("logo.png");
-                int tailleqrcode = Convert.ToInt32(ehaut * (float)0.8);
                 args.Graphics.DrawImage(logosociete, 10, Convert.ToInt32(ehaut * (float)0.2), 70, 30);
-
+                }
+                /*
+                */
+                //insert qr code
+                int tailleqrcode = Convert.ToInt32(ehaut * (float)0.8);
                 args.Graphics.DrawImage(img, (elarg - tailleqrcode) / 2, Convert.ToInt32(ehaut * (float)0.2), tailleqrcode, tailleqrcode);
                 StringFormat sf = new StringFormat();
                 sf.LineAlignment = StringAlignment.Center;
